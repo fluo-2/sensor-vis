@@ -25,6 +25,7 @@ tikz("basic_spectral.tex", width=20, height=15, standAlone = TRUE)
 g <- ggplot(filter) +
   geom_rect(aes(xmin=range-(FWHM/2),xmax=range+(FWHM/2),
                 ymin=0, ymax=0.49),color="black",fill="red",alpha=0.7,size=0.9) +
+  ## geom_vline(xintercept = 685, linetype="dashed", size=1.2) +
   ylab("") +
   xlab("\n Wavelength $\\lambda$ [nm]") +
   ylim(c(0,0.5)) +
