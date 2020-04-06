@@ -34,7 +34,7 @@ g <- ggplot(wave,aes(x=wl_center)) +
   scale_x_continuous(breaks = round(seq(roundUp(min(wave$wl_center),500),
                                         roundUp(max(wave$wl_center),500),
                                         by = 1000),1),
-                     expand=expand_scale(mult=c(0,0))) +
+                     expand=expand_scale(mult=c(0.03,0.01))) +
   facet_wrap(Sensor~.,ncol=1)
 print(g)
 dev.off()
