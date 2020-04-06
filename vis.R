@@ -7,40 +7,35 @@ library(ggplot2)
 library(tikzDevice)
 library(reshape2)
 library(ggspectra)
+source("./handle_data.R")
 
-# read and filter
-data <- read.xls("./data/SIF_Sensors.xlsx",sheet=1)
-data <- data[c(1,9,10)]
-data <- data[grep("multispectral",data[,2]),]
-names(data)[2] <- "Spectral_Bands"
-# filter-again and recompose
-filter <- lapply(1:nrow(data),function(i) {
-  range <- as.numeric(strsplit(as.character(data[i,2]),"\\,?\\s")[[1]])
-  range <- range[which(!is.na(range))]
-  return(cbind(data[i,c(1,3)],range))
-})
-filter <- do.call(rbind,filter)
-filter[,2] <- as.numeric(as.character(filter[,2]))
-wave <- data.frame(range = 300:1200)
+# read main data source for sheet 1
+clean_data <- extract_categorical_data("WL_FWHM")
+# create dummy dataframe to initialize wavelength range
+wave <- data.frame(wl_center = 100:15000)
 # proceed to plot data
-tikz("basic_spectral.tex", width=20, height=15, standAlone = TRUE)
-g <- ggplot(wave,aes(x=range)) +
-  wl_guide(alpha=0.8) +
-  geom_rect(data=filter,aes(xmin=range-(FWHM/2),xmax=range+(FWHM/2),
+tikz("basic_spectral.tex", width=20, height=12, standAlone = TRUE)
+g <- ggplot(wave,aes(x=wl_center)) +
+  ## wl_guide(alpha=0.8) +
+  geom_rect(data=clean_data,aes(xmin=wl_center-(fwhm/2),xmax=wl_center+(fwhm/2),
                 ymin=0, ymax=0.49),color="black",fill="red",alpha=0.5,size=1.1) +
   ## geom_vline(xintercept = 685, linetype="dashed", size=1.2) +
   ylab("") +
   xlab("\n Wavelength $\\lambda$ [nm]") +
   ylim(c(0,0.5)) +
   theme_bw() +
-  theme(text = element_text(size=30, family="CM Roman"),
+  theme(text = element_text(size=30),
         legend.position = "none",
         plot.title = element_text(hjust=0.5),
         axis.ticks.length = unit(0.2, "cm"),
         axis.ticks.y=element_blank(),
-        axis.text.y=element_blank()) +
-  scale_x_continuous(breaks = round(seq(min(wave$range), max(wave$range), by = 50),1)) +
-  facet_wrap(Instrument~.,nrow=4)
+        axis.text.y=element_blank(),
+        plot.margin = margin(10, 50, 10, 10)) +
+  scale_x_continuous(breaks = round(seq(roundUp(min(wave$wl_center),500),
+                                        roundUp(max(wave$wl_center),500),
+                                        by = 1000),1),
+                     expand=expand_scale(mult=c(0,0))) +
+  facet_wrap(Sensor~.,ncol=1)
 print(g)
 dev.off()
 texi2pdf("basic_spectral.tex",clean=TRUE)
