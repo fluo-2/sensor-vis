@@ -42,3 +42,67 @@ texi2pdf("basic_spectral.tex",clean=TRUE)
 file.remove("basic_spectral.tex")
 file.rename("basic_spectral.pdf",
             "./img/basic_spectral.pdf")
+# additional truncated plot
+wave <- data.frame(wl_center = 100:1200)
+# proceed to plot data
+tikz("basic_spectral_truncated.tex", width=20, height=12, standAlone = TRUE)
+g <- ggplot(wave,aes(x=wl_center)) +
+  wl_guide(alpha=0.8) +
+  geom_rect(data=clean_data,aes(xmin=wl_center-(fwhm/2),xmax=wl_center+(fwhm/2),
+                ymin=0, ymax=0.49),color="black",fill="red",alpha=0.5,size=1.1) +
+  ## geom_vline(xintercept = 685, linetype="dashed", size=1.2) +
+  ylab("") +
+  xlab("\n Wavelength $\\lambda$ [nm]") +
+  ## xlim(c(min(wave$wl_center),max(wave$wl_center))) +
+  ylim(c(0,0.5)) +
+  theme_bw() +
+  theme(text = element_text(size=30),
+        legend.position = "none",
+        plot.title = element_text(hjust=0.5),
+        axis.ticks.length = unit(0.2, "cm"),
+        axis.ticks.y=element_blank(),
+        axis.text.y=element_blank(),
+        plot.margin = margin(10, 50, 10, 10)) +
+  scale_x_continuous(limits=c(min(wave$wl_center),max(wave$wl_center)),
+                     breaks = round(seq(roundUp(min(wave$wl_center),100),
+                                        roundUp(max(wave$wl_center),100),
+                                        by =100),1),
+                     expand=expand_scale(mult=c(0,0))) +
+  facet_wrap(Sensor~.,ncol=1)
+print(g)
+dev.off()
+texi2pdf("basic_spectral_truncated.tex",clean=TRUE)
+file.remove("basic_spectral_truncated.tex")
+file.rename("basic_spectral_truncated.pdf",
+            "./img/basic_spectral_truncated.pdf")
+# without spectrum
+tikz("basic_spectral_truncated_nos.tex", width=20, height=12, standAlone = TRUE)
+g <- ggplot(wave,aes(x=wl_center)) +
+  ## wl_guide(alpha=0.8) +
+  geom_rect(data=clean_data,aes(xmin=wl_center-(fwhm/2),xmax=wl_center+(fwhm/2),
+                ymin=0, ymax=0.49),color="black",fill="red",alpha=0.5,size=1.1) +
+  ## geom_vline(xintercept = 685, linetype="dashed", size=1.2) +
+  ylab("") +
+  xlab("\n Wavelength $\\lambda$ [nm]") +
+  ## xlim(c(min(wave$wl_center),max(wave$wl_center))) +
+  ylim(c(0,0.5)) +
+  theme_bw() +
+  theme(text = element_text(size=30),
+        legend.position = "none",
+        plot.title = element_text(hjust=0.5),
+        axis.ticks.length = unit(0.2, "cm"),
+        axis.ticks.y=element_blank(),
+        axis.text.y=element_blank(),
+        plot.margin = margin(10, 50, 10, 10)) +
+  scale_x_continuous(limits=c(min(wave$wl_center),max(wave$wl_center)),
+                     breaks = round(seq(roundUp(min(wave$wl_center),100),
+                                        roundUp(max(wave$wl_center),100),
+                                        by =100),1),
+                     expand=expand_scale(mult=c(0.01,0.01))) +
+  facet_wrap(Sensor~.,ncol=1)
+print(g)
+dev.off()
+texi2pdf("basic_spectral_truncated_nos.tex",clean=TRUE)
+file.remove("basic_spectral_truncated_nos.tex")
+file.rename("basic_spectral_truncated_nos.pdf",
+            "./img/basic_spectral_truncated_nos.pdf")
